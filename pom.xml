@@ -16,16 +16,13 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
+  <modelVersion>4.0.0</modelVersion>
   <groupId>org.flyte</groupId>
   <artifactId>flytekit-parent</artifactId>
-
   <packaging>pom</packaging>
   <version>0.2.0-SNAPSHOT</version>
-
   <properties>
     <auto-service.version>1.0-rc5</auto-service.version>
     <auto-value.version>1.7</auto-value.version>
@@ -37,17 +34,20 @@
     <protobuf.version>3.11.4</protobuf.version>
     <sl4j.version>1.7.30</sl4j.version>
     <spotless.version>1.30.0</spotless.version>
-    <spotbugs.excludeFilterFile>spotbugs-exclude.xml</spotbugs.excludeFilterFile>
+    <spotbugs.excludeFilterFile>
+      spotbugs-exclude.xml</spotbugs.excludeFilterFile>
     <error_prone.version>2.3.4</error_prone.version>
     <!-- Using the error-prone-javac is required when running on JDK 8 -->
-    <error_prone.javac.version>9+181-r4173-1</error_prone.javac.version>
+    <error_prone.javac.version>
+      9+181-r4173-1</error_prone.javac.version>
     <junit.version>5.6.2</junit.version>
-
     <!-- has to be one liner, or errorprone doesn't work -->
-    <error-prone-base-config><![CDATA[-Xplugin:ErrorProne -XepDisableWarningsInGeneratedCode -XepExcludedPaths:.*/generated-(test-)?sources/.*]]></error-prone-base-config>
-    <error-prone-additional-args>-Xep:AutoValueImmutableFields:OFF -Xep:Var:ERROR</error-prone-additional-args>
+    <error-prone-base-config>
+      <![CDATA[-Xplugin:ErrorProne -XepDisableWarningsInGeneratedCode -XepExcludedPaths:.*/generated-(test-)?sources/.*]]>
+    </error-prone-base-config>
+    <error-prone-additional-args>-Xep:AutoValueImmutableFields:OFF
+      -Xep:Var:ERROR</error-prone-additional-args>
   </properties>
-
   <modules>
     <module>flytekit-api</module>
     <module>flytekit-jackson</module>
@@ -58,13 +58,13 @@
     <module>flytekit-examples</module>
     <module>flytekit-examples-scala</module>
     <module>flytekit-local-engine</module>
+    <module>flytekit-flink</module>
     <module>jflyte</module>
     <module>jflyte-api</module>
     <module>jflyte-aws</module>
     <module>jflyte-build</module>
     <module>jflyte-google-cloud</module>
   </modules>
-
   <licenses>
     <license>
       <name>Apache License, Version 2.0</name>
@@ -72,7 +72,6 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-
   <dependencyManagement>
     <dependencies>
       <!-- modules -->
@@ -91,6 +90,11 @@
         <artifactId>flytekit-java</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <!-- <dependency>
+        <groupId>org.flyte</groupId>
+        <artifactId>flytekit-flink</artifactId>
+        <version>${project.version}</version>
+      </dependency> -->
       <dependency>
         <groupId>org.flyte</groupId>
         <artifactId>flytekit-local-engine</artifactId>
@@ -121,7 +125,6 @@
         <artifactId>jflyte-google-cloud</artifactId>
         <version>${project.version}</version>
       </dependency>
-
       <dependency>
         <groupId>io.grpc</groupId>
         <artifactId>grpc-bom</artifactId>
@@ -201,7 +204,6 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-
   <distributionManagement>
     <repository>
       <id>repo</id>
@@ -214,7 +216,6 @@
       <url>${env.SNAPSHOTS_REPOSITORY_URL}</url>
     </snapshotRepository>
   </distributionManagement>
-
   <build>
     <plugins>
       <plugin>
@@ -303,7 +304,8 @@
             <java>
               <licenseHeader>
                 <!-- Specify either content or file, but not both -->
-                <content><![CDATA[/*
+                <content>
+                  <![CDATA[/*
  * Copyright 2020 Spotify AB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -319,7 +321,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-]]></content>
+]]>
+                </content>
               </licenseHeader>
               <googleJavaFormat>
                 <version>1.7</version>
@@ -333,7 +336,8 @@
                 <include>**/src/**/*.xml</include>
               </includes>
               <licenseHeader>
-                <content><![CDATA[<!--
+                <content>
+                  <![CDATA[<!--
   Copyright 2020 Spotify AB.
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -349,18 +353,22 @@
   specific language governing permissions and limitations
   under the License.
 -->
-]]></content>
+]]>
+                </content>
               </licenseHeader>
               <eclipse>
-                <file>${maven.multiModuleProjectDirectory}/spotless.xmlformat.prefs</file>
+                <file>
+                  ${maven.multiModuleProjectDirectory}/spotless.xmlformat.prefs</file>
               </eclipse>
             </xml>
             <scala>
               <scalafmt>
-                <file>${maven.multiModuleProjectDirectory}/.scalafmt.conf</file>
+                <file>
+                  ${maven.multiModuleProjectDirectory}/.scalafmt.conf</file>
               </scalafmt>
               <licenseHeader>
-                <content><![CDATA[/*
+                <content>
+                  <![CDATA[/*
  * Copyright 2020 Spotify AB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -376,7 +384,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-]]></content>
+]]>
+                </content>
               </licenseHeader>
             </scala>
             <formats>
@@ -440,7 +449,6 @@
             <show>private</show>
             <encoding>utf-8</encoding>
             <failOnWarnings>true</failOnWarnings>
-
             <!-- generated proto code, doesn't have proper javadoc -->
             <excludePackageNames>flyteidl.*</excludePackageNames>
           </configuration>
@@ -560,7 +568,8 @@
             </execution>
           </executions>
           <configuration>
-            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+            <outputDirectory>
+              ${project.build.directory}/lib</outputDirectory>
           </configuration>
         </plugin>
         <plugin>
@@ -576,7 +585,8 @@
             </execution>
           </executions>
           <configuration>
-            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+            <outputDirectory>
+              ${project.build.directory}/lib</outputDirectory>
             <useBaseVersion>false</useBaseVersion>
             <overWriteReleases>false</overWriteReleases>
             <overWriteSnapshots>true</overWriteSnapshots>
@@ -586,7 +596,6 @@
       </plugins>
     </pluginManagement>
   </build>
-
   <profiles>
     <profile>
       <id>errorprone</id>
@@ -604,7 +613,8 @@
               <configuration>
                 <compilerArgs combine.children="append">
                   <arg>-XDcompilePolicy=simple</arg>
-                  <arg>${error-prone-base-config} ${error-prone-additional-args}</arg>
+                  <arg>${error-prone-base-config}
+                    ${error-prone-additional-args}</arg>
                 </compilerArgs>
               </configuration>
             </plugin>
@@ -628,8 +638,7 @@
                 <fork>true</fork>
                 <compilerArgs combine.children="append">
                   <arg>
-                    -J-Xbootclasspath/p:${settings.localRepository}/com/google/errorprone/javac/${error_prone.javac.version}/javac-${error_prone.javac.version}.jar
-                  </arg>
+                    -J-Xbootclasspath/p:${settings.localRepository}/com/google/errorprone/javac/${error_prone.javac.version}/javac-${error_prone.javac.version}.jar</arg>
                 </compilerArgs>
               </configuration>
             </plugin>
@@ -650,5 +659,4 @@
       </properties>
     </profile>
   </profiles>
-
 </project>

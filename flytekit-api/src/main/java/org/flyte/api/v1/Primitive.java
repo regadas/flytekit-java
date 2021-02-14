@@ -60,4 +60,23 @@ public abstract class Primitive {
   public static Primitive ofDuration(Duration duration) {
     return AutoOneOf_Primitive.duration(duration);
   }
+
+  public Object value() {
+    switch (type()) {
+      case INTEGER:
+        return integer();
+      case FLOAT:
+        return float_();
+      case STRING:
+        return string();
+      case BOOLEAN:
+        return boolean_();
+      case DATETIME:
+        return datetime();
+      case DURATION:
+        return duration();
+      default:
+        throw new IllegalArgumentException();
+    }
+  }
 }

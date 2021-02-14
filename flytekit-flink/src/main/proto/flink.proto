@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package flyteidl.flink;
+
+// TODO(regadas): we could publish the schema, right?
+// import "k8s.io/apimachinery/pkg/api/resource/generated.proto";
+
+message Resource {
+  message PersistentVolume {
+    enum Type {
+      PD_STANDARD = 0;
+      PD_SSD = 1;
+    }
+
+    Type type = 1;
+    string size = 2;
+  }
+
+  string cpu = 1;
+  string memory = 2;
+  PersistentVolume persistentVolume = 3;
+}
+
+message JobManager { Resource resource = 1; }
+
+message TaskManager {
+  Resource resource = 1;
+  int32 replicas = 2;
+}
+
+// Custom Proto for Flink Plugin.
+message FlinkJob {
+  string jarFile = 1;
+  string mainClass = 2;
+  repeated string args = 3;
+  // map<string, string> flinkProperties = 4;
+
+  // JobManager jobManager = 5;
+  // TaskManager taskManager = 6;
+  string serviceAccount = 7;
+  string image = 8;
+}

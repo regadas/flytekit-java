@@ -35,4 +35,8 @@ public abstract class Scalar {
   public static Scalar ofPrimitive(Primitive primitive) {
     return AutoOneOf_Scalar.primitive(primitive);
   }
+
+  public Object value() {
+    return primitive().value();
+  }
 }

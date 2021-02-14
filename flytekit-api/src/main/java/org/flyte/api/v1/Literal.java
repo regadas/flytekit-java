@@ -19,6 +19,7 @@ package org.flyte.api.v1;
 import com.google.auto.value.AutoOneOf;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * A simple value. This supports any level of nesting (e.g. array of array of array of Blobs) as
@@ -56,5 +57,18 @@ public abstract class Literal {
 
   public static Literal ofMap(Map<String, Literal> map) {
     return AutoOneOf_Literal.map(map);
+  }
+
+  public Object value() {
+    switch (kind()) {
+      case SCALAR:
+        return scalar().value();
+      case COLLECTION:
+        return collection().stream().map(Literal::value).collect(Collectors.toList());
+      case MAP:
+        return null;
+      default:
+        throw new IllegalArgumentException();
+    }
   }
 }

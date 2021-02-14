@@ -41,6 +41,10 @@
       <groupId>org.flyte</groupId>
       <artifactId>flytekit-java</artifactId>
     </dependency>
+    <!-- <dependency>
+      <groupId>org.flyte</groupId>
+      <artifactId>flytekit-flink</artifactId>
+    </dependency> -->
 
     <!-- provided -->
     <dependency>
