@@ -189,7 +189,8 @@ class ProtoUtil {
         .setContainer(serialize(container))
         .setMetadata(metadata)
         .setInterface(serialize(taskTemplate.interface_()))
-        .setType(TASK_TYPE)
+        .setType(taskTemplate.type())
+        .setCustom(taskTemplate.custom())
         .build();
   }
 

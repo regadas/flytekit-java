@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package flyteidl.inner.flink;
+package flyteidl.flink;
 
 // TODO(regadas): we could publish the schema, right?
 // import "k8s.io/apimachinery/pkg/api/resource/generated.proto";
@@ -33,10 +33,10 @@ message FlinkJob {
   string jarFile = 1;
   string mainClass = 2;
   repeated string args = 3;
-  // map<string, string> flinkProperties = 4;
+  map<string, string> flinkProperties = 4;
 
-  // JobManager jobManager = 5;
-  // TaskManager taskManager = 6;
+  JobManager jobManager = 5;
+  TaskManager taskManager = 6;
   string serviceAccount = 7;
   string image = 8;
 }

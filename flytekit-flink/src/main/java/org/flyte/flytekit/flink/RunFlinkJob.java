@@ -16,24 +16,20 @@
  */
 package org.flyte.flytekit.flink;
 
-import com.google.auto.service.AutoService;
 import com.google.errorprone.annotations.Var;
-import flyteidl.flink.Flink.FlinkJob;
-import java.util.List;
+import flyteidl.inner.flink.Flink.FlinkJob;
 import java.util.Map;
 import org.flyte.flytekit.SdkBindingData;
-import org.flyte.flytekit.SdkNode;
 import org.flyte.flytekit.SdkRemoteTask;
 import org.flyte.flytekit.SdkRunnableTask;
 import org.flyte.flytekit.SdkTransform;
 import org.flyte.flytekit.SdkTypes;
-import org.flyte.flytekit.SdkWorkflowBuilder;
 
-@AutoService(SdkRunnableTask.class)
-public final class RunFlinkJob extends SdkTransform {
-  // public RunFlinkJob() {
-  //   super(MessageSdkType.of(FlinkJob.class), SdkTypes.nulls());
-  // }
+// @AutoService(SdkRunnableTask.class)
+public final class RunFlinkJob extends SdkRunnableTask<FlinkJob, Void> {
+  public RunFlinkJob() {
+    super(MessageSdkType.of(FlinkJob.class), SdkTypes.nulls());
+  }
 
   public static SdkTransform of(String project, String domain) {
     return SdkRemoteTask.create(
@@ -67,11 +63,7 @@ public final class RunFlinkJob extends SdkTransform {
   }
 
   @Override
-  public SdkNode apply(
-      SdkWorkflowBuilder builder,
-      String nodeId,
-      List<String> upstreamNodeIds,
-      Map<String, SdkBindingData> inputs) {
+  public Void run(FlinkJob input) {
     // TODO Auto-generated method stub
     return null;
   }

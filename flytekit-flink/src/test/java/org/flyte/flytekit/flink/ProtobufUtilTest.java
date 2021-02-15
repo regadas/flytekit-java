@@ -18,7 +18,7 @@ package org.flyte.flytekit.flink;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import flyteidl.flink.Flink.FlinkJob;
+import flyteidl.inner.flink.Flink.FlinkJob;
 import java.util.Map;
 import org.flyte.api.v1.Literal;
 import org.flyte.api.v1.LiteralType;

@@ -20,6 +20,9 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteSource;
+import com.google.protobuf.Struct;
+import com.google.protobuf.util.JsonFormat;
+import flyteidl.flink.Flink.FlinkJob;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -29,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -40,10 +44,12 @@ import org.flyte.api.v1.KeyValuePair;
 import org.flyte.api.v1.LaunchPlan;
 import org.flyte.api.v1.LaunchPlanIdentifier;
 import org.flyte.api.v1.LaunchPlanRegistrar;
+import org.flyte.api.v1.RetryStrategy;
 import org.flyte.api.v1.RunnableTask;
 import org.flyte.api.v1.RunnableTaskRegistrar;
 import org.flyte.api.v1.TaskIdentifier;
 import org.flyte.api.v1.TaskTemplate;
+import org.flyte.api.v1.TypedInterface;
 import org.flyte.api.v1.WorkflowIdentifier;
 import org.flyte.api.v1.WorkflowTemplate;
 import org.flyte.api.v1.WorkflowTemplateRegistrar;
@@ -140,6 +146,8 @@ public class RegisterWorkflows implements Callable<Integer> {
         .container(container)
         .interface_(task.getInterface())
         .retries(task.getRetries())
+        .type("java-task")
+        .custom(Struct.getDefaultInstance())
         .build();
   }
 
@@ -196,6 +204,61 @@ public class RegisterWorkflows implements Callable<Integer> {
 
       adminClient.createTask(taskId, taskTemplate);
     }
+
+    ///////
+    TaskIdentifier flinkTaskId =
+        TaskIdentifier.builder()
+            .domain(domain)
+            .project(project)
+            .name("flink-task")
+            .version(version)
+            .build();
+    FlinkJob job =
+        FlinkJob.newBuilder()
+            .setMainClass("com.spotify.heroic.importer.GCSAvroToBigqueryJob")
+            .setJarFile("gs://esquilo-random/heroic-bigquery-importer.jar")
+            .setImage("gcr.io/esquilo/flink:1.10.1-scala_2.12-gcs")
+            .setServiceAccount("ff-dev-workload-sa")
+            .addArgs("--runner=FlinkRunner")
+            .addArgs("--tempLocation=gs://heroic-bigquery-importer-staging/temp")
+            .addArgs("--input=gs://esquilo-datasets/heroic/gew/imported-metrics-avro/2020/08/31")
+            .addArgs("--bqtable=esquilo:metrics_all.metrics_all_gew")
+            .addArgs("--output=not_needed")
+            .putFlinkProperties("jobmanager.heap.size", "3g")
+            .putFlinkProperties("taskmanager.numberOfTaskSlots", "2")
+            .putFlinkProperties("taskmanager.memory.flink.size", "3g")
+            .build();
+    try {
+      String json = JsonFormat.printer().print(job);
+      Struct.Builder custom = Struct.newBuilder();
+      JsonFormat.parser().merge(json, custom);
+
+      Container container =
+          Container.builder()
+              .command(ImmutableList.of())
+              .args(ImmutableList.of())
+              .image(image)
+              .env(envList)
+              .build();
+
+      TaskTemplate flinkTaskTemplate =
+          TaskTemplate.builder()
+              .interface_(
+                  TypedInterface.builder()
+                      .inputs(Collections.emptyMap())
+                      .outputs(Collections.emptyMap())
+                      .build())
+              .container(container)
+              .type("flink")
+              .custom(custom.build())
+              .retries(RetryStrategy.builder().retries(5).build())
+              .build();
+
+      adminClient.createTask(flinkTaskId, flinkTaskTemplate);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+    //////
 
     for (Map.Entry<WorkflowIdentifier, WorkflowTemplate> entry : workflows.entrySet()) {
       WorkflowIdentifier workflowId = entry.getKey();
