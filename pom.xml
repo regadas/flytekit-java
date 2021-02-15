@@ -90,11 +90,11 @@
         <artifactId>flytekit-java</artifactId>
         <version>${project.version}</version>
       </dependency>
-      <!-- <dependency>
+      <dependency>
         <groupId>org.flyte</groupId>
         <artifactId>flytekit-flink</artifactId>
         <version>${project.version}</version>
-      </dependency> -->
+      </dependency>
       <dependency>
         <groupId>org.flyte</groupId>
         <artifactId>flytekit-local-engine</artifactId>

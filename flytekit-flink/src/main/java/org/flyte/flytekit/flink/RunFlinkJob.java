@@ -16,37 +16,63 @@
  */
 package org.flyte.flytekit.flink;
 
-import flyteidl.flink.Flink.FlinkJob;
-import java.util.Map;
-
+import com.google.auto.service.AutoService;
 import com.google.errorprone.annotations.Var;
-
+import flyteidl.flink.Flink.FlinkJob;
+import java.util.List;
+import java.util.Map;
 import org.flyte.flytekit.SdkBindingData;
+import org.flyte.flytekit.SdkNode;
 import org.flyte.flytekit.SdkRemoteTask;
+import org.flyte.flytekit.SdkRunnableTask;
 import org.flyte.flytekit.SdkTransform;
 import org.flyte.flytekit.SdkTypes;
+import org.flyte.flytekit.SdkWorkflowBuilder;
 
-public final class RunFlinkJob {
+@AutoService(SdkRunnableTask.class)
+public final class RunFlinkJob extends SdkTransform {
+  // public RunFlinkJob() {
+  //   super(MessageSdkType.of(FlinkJob.class), SdkTypes.nulls());
+  // }
 
-  private RunFlinkJob() {}
-
-  public static SdkTransform of() {
+  public static SdkTransform of(String project, String domain) {
     return SdkRemoteTask.create(
-        "production",
-        "flyte-warehouse",
+        domain,
+        project,
         "org.flyte.flytekit.flink.RunFlinkJob",
         MessageSdkType.of(FlinkJob.class),
         SdkTypes.nulls());
   }
 
-  public static SdkTransform of(FlinkJob flinkJob) {
+  public static SdkTransform of(String project, String domain, FlinkJob flinkJob) {
     Map<String, SdkBindingData> bindingData = ProtobufUtil.bindingData(flinkJob);
-    @Var SdkTransform transform = of();
+    @Var SdkTransform transform = of(project, domain);
 
     for (Map.Entry<String, SdkBindingData> entry : bindingData.entrySet()) {
       transform = transform.withInput(entry.getKey(), entry.getValue());
     }
 
     return transform;
+  }
+
+  public static SdkTransform of(FlinkJob flinkJob) {
+    Map<String, SdkBindingData> bindingData = ProtobufUtil.bindingData(flinkJob);
+    @Var SdkTransform transform = new RunFlinkJob();
+
+    for (Map.Entry<String, SdkBindingData> entry : bindingData.entrySet()) {
+      transform = transform.withInput(entry.getKey(), entry.getValue());
+    }
+
+    return transform;
+  }
+
+  @Override
+  public SdkNode apply(
+      SdkWorkflowBuilder builder,
+      String nodeId,
+      List<String> upstreamNodeIds,
+      Map<String, SdkBindingData> inputs) {
+    // TODO Auto-generated method stub
+    return null;
   }
 }
