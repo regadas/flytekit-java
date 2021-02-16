@@ -30,11 +30,7 @@ public interface RunnableTask {
 
   RetryStrategy getRetries();
 
-  default String getType() {
-    return "java-task";
-  }
+  String getType();
 
-  default Struct getCustom() {
-    return Struct.getDefaultInstance();
-  }
+  Struct getCustom();
 }

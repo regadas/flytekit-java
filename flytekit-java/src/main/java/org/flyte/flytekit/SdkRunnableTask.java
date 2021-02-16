@@ -16,6 +16,7 @@
  */
 package org.flyte.flytekit;
 
+import com.google.protobuf.Struct;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,8 @@ public abstract class SdkRunnableTask<InputT, OutputT> extends SdkTransform
     implements Serializable {
 
   private static final long serialVersionUID = 42L;
+  private static final String DEFAULT_TASK_TYPE = "java-task";
+  private static final Struct DEFAULT_CUSTOM = Struct.getDefaultInstance();
 
   private final transient SdkType<InputT> inputType;
   private final transient SdkType<OutputT> outputType;
@@ -64,6 +67,14 @@ public abstract class SdkRunnableTask<InputT, OutputT> extends SdkTransform
    */
   public int getRetries() {
     return 0;
+  }
+
+  public String getType() {
+    return DEFAULT_TASK_TYPE;
+  }
+
+  public Struct getCustom() {
+    return DEFAULT_CUSTOM;
   }
 
   @Override

@@ -16,12 +16,15 @@
  */
 package org.flyte.flytekit;
 
-import com.google.auto.service.AutoService;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.google.auto.service.AutoService;
+import com.google.protobuf.Struct;
+
 import org.flyte.api.v1.Literal;
 import org.flyte.api.v1.RetryStrategy;
 import org.flyte.api.v1.RunnableTask;
@@ -70,6 +73,16 @@ public class SdkRunnableTaskRegistrar extends RunnableTaskRegistrar {
     @Override
     public String getName() {
       return sdkTask.getName();
+    }
+
+    @Override
+    public String getType() {
+      return sdkTask.getType();
+    }
+
+    @Override
+    public Struct getCustom() {
+      return sdkTask.getCustom();
     }
   }
 
