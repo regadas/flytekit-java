@@ -40,6 +40,7 @@ public class SdkRunnableTaskRegistrar extends RunnableTaskRegistrar {
   }
 
   private static class RunnableTaskImpl<InputT, OutputT> implements RunnableTask {
+    private static final String TASK_TYPE = "java-task";
     private final SdkRunnableTask<InputT, OutputT> sdkTask;
 
     private RunnableTaskImpl(SdkRunnableTask<InputT, OutputT> sdkTask) {
@@ -70,6 +71,16 @@ public class SdkRunnableTaskRegistrar extends RunnableTaskRegistrar {
     @Override
     public String getName() {
       return sdkTask.getName();
+    }
+
+    @Override
+    public String getType() {
+      return TASK_TYPE;
+    }
+
+    @Override
+    public String getCustom() {
+      return null;
     }
   }
 

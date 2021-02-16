@@ -30,6 +30,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.protobuf.Struct;
 import flyteidl.admin.ScheduleOuterClass;
 import flyteidl.core.Errors;
 import flyteidl.core.IdentifierOuterClass;
@@ -333,7 +334,12 @@ class ProtoUtilTest {
     RetryStrategy retries = RetryStrategy.builder().retries(4).build();
 
     TaskTemplate template =
-        TaskTemplate.builder().container(container).interface_(interface_).retries(retries).build();
+        TaskTemplate.builder()
+            .container(container)
+            .interface_(interface_)
+            .retries(retries)
+            .type("java-task")
+            .build();
 
     Tasks.TaskTemplate serializedTemplate = ProtoUtil.serialize(template);
 
@@ -387,7 +393,8 @@ class ProtoUtilTest {
                                         .build())
                                 .build())
                         .build())
-                .setType(ProtoUtil.TASK_TYPE)
+                .setType("java-task")
+                .setCustom(Struct.getDefaultInstance())
                 .build()));
   }
 
