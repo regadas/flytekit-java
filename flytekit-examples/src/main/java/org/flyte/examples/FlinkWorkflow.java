@@ -14,22 +14,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.flyte.api.v1;
+package org.flyte.examples;
 
-import java.util.Map;
+import com.google.auto.service.AutoService;
+import org.flyte.flytekit.SdkWorkflow;
+import org.flyte.flytekit.SdkWorkflowBuilder;
 
-/** Building block for tasks that execute Java code. */
-public interface RunnableTask {
+@AutoService(SdkWorkflow.class)
+public class FlinkWorkflow extends SdkWorkflow {
 
-  String getName();
-
-  TypedInterface getInterface();
-
-  Map<String, Literal> run(Map<String, Literal> inputs);
-
-  RetryStrategy getRetries();
-
-  String getType();
-
-  String getCustom();
+  @Override
+  public void expand(SdkWorkflowBuilder builder) {
+    builder.apply("flink", new HelloFlinkTask());
+  }
 }

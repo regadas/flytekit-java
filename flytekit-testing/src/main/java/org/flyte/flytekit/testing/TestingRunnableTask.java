@@ -120,4 +120,14 @@ class TestingRunnableTask<InputT, OutputT> implements RunnableTask {
   public TestingRunnableTask<InputT, OutputT> withRunFn(Function<InputT, OutputT> runFn) {
     return new TestingRunnableTask<>(taskId, inputType, outputType, runFn, fixedOutputs);
   }
+
+  @Override
+  public String getType() {
+    return "java-task";
+  }
+
+  @Override
+  public String getCustom() {
+    return null;
+  }
 }

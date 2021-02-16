@@ -14,22 +14,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.flyte.api.v1;
+package org.flyte.flytekit.flink;
 
-import java.util.Map;
+import flyteidl.inner.flink.Flink.FlinkJob;
+import org.flyte.flytekit.SdkRunnableTask;
+import org.flyte.flytekit.SdkTypes;
 
-/** Building block for tasks that execute Java code. */
-public interface RunnableTask {
+public abstract class FlinkTask extends SdkRunnableTask<Void, Void> {
+  private static final long serialVersionUID = -7595732881321097820L;
 
-  String getName();
+  public FlinkTask() {
+    super(SdkTypes.nulls(), SdkTypes.nulls());
+  }
 
-  TypedInterface getInterface();
+  @Override
+  public Void run(Void input) {
+    return null;
+  }
 
-  Map<String, Literal> run(Map<String, Literal> inputs);
-
-  RetryStrategy getRetries();
-
-  String getType();
-
-  String getCustom();
+  public abstract FlinkJob getFlinkJob();
 }

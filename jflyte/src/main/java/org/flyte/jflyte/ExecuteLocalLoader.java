@@ -146,5 +146,15 @@ public class ExecuteLocalLoader {
     public RetryStrategy getRetries() {
       return runnableTask.getRetries();
     }
+
+    @Override
+    public String getType() {
+      return runnableTask.getType();
+    }
+
+    @Override
+    public String getCustom() {
+      return runnableTask.getCustom();
+    }
   }
 }

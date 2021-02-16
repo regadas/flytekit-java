@@ -58,6 +58,7 @@
     <module>flytekit-examples</module>
     <module>flytekit-examples-scala</module>
     <module>flytekit-local-engine</module>
+    <module>flytekit-flink</module>
     <module>jflyte</module>
     <module>jflyte-api</module>
     <module>jflyte-aws</module>
@@ -89,6 +90,11 @@
       <dependency>
         <groupId>org.flyte</groupId>
         <artifactId>flytekit-java</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.flyte</groupId>
+        <artifactId>flytekit-flink</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -162,6 +168,11 @@
       <dependency>
         <groupId>com.google.protobuf</groupId>
         <artifactId>protobuf-java</artifactId>
+        <version>${protobuf.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java-util</artifactId>
         <version>${protobuf.version}</version>
       </dependency>
       <dependency>

@@ -14,9 +14,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.flyte.flytekit;
+package org.flyte.flytekit.flink;
 
 import com.google.auto.service.AutoService;
+import com.google.protobuf.util.JsonFormat;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -28,49 +30,49 @@ import org.flyte.api.v1.RunnableTask;
 import org.flyte.api.v1.RunnableTaskRegistrar;
 import org.flyte.api.v1.TaskIdentifier;
 import org.flyte.api.v1.TypedInterface;
+import org.flyte.flytekit.SdkConfig;
 
-/** A registrar that creates {@link SdkRunnableTask} instances. */
+/** A registrar that creates {@link FlinkTask} instances. */
 @AutoService(RunnableTaskRegistrar.class)
-public class SdkRunnableTaskRegistrar extends RunnableTaskRegistrar {
-  private static final Logger LOG = Logger.getLogger(SdkRunnableTaskRegistrar.class.getName());
+public class FlinkTaskRegistrar extends RunnableTaskRegistrar {
+  private static final Logger LOG = Logger.getLogger(FlinkTaskRegistrar.class.getName());
 
   static {
     // enable all levels for the actual handler to pick up
     LOG.setLevel(Level.ALL);
   }
 
-  private static class RunnableTaskImpl<InputT, OutputT> implements RunnableTask {
-    private static final String TASK_TYPE = "java-task";
-    private final SdkRunnableTask<InputT, OutputT> sdkTask;
+  private static class RunnableTaskImpl implements RunnableTask {
+    private static final String TASK_TYPE = "flink";
+    private static final JsonFormat.Printer JSON_PRINTER = JsonFormat.printer();
 
-    private RunnableTaskImpl(SdkRunnableTask<InputT, OutputT> sdkTask) {
-      this.sdkTask = sdkTask;
+    private final FlinkTask flinkTask;
+
+    private RunnableTaskImpl(FlinkTask flinkTask) {
+      this.flinkTask = flinkTask;
     }
 
     @Override
     public TypedInterface getInterface() {
       return TypedInterface.builder()
-          .inputs(sdkTask.getInputType().getVariableMap())
-          .outputs(sdkTask.getOutputType().getVariableMap())
+          .inputs(Collections.emptyMap())
+          .outputs(Collections.emptyMap())
           .build();
     }
 
     @Override
     public Map<String, Literal> run(Map<String, Literal> inputs) {
-      InputT value = sdkTask.getInputType().fromLiteralMap(inputs);
-      OutputT output = sdkTask.run(value);
-
-      return sdkTask.getOutputType().toLiteralMap(output);
+      return Collections.emptyMap();
     }
 
     @Override
     public RetryStrategy getRetries() {
-      return RetryStrategy.builder().retries(sdkTask.getRetries()).build();
+      return RetryStrategy.builder().retries(flinkTask.getRetries()).build();
     }
 
     @Override
     public String getName() {
-      return sdkTask.getName();
+      return flinkTask.getName();
     }
 
     @Override
@@ -80,21 +82,24 @@ public class SdkRunnableTaskRegistrar extends RunnableTaskRegistrar {
 
     @Override
     public String getCustom() {
-      return null;
+      try {
+        return JSON_PRINTER.print(flinkTask.getFlinkJob());
+      } catch (Exception e) {
+        throw new IllegalArgumentException(e);
+      }
     }
   }
 
   @Override
-  @SuppressWarnings("rawtypes")
   public Map<TaskIdentifier, RunnableTask> load(Map<String, String> env, ClassLoader classLoader) {
-    ServiceLoader<SdkRunnableTask> loader = ServiceLoader.load(SdkRunnableTask.class, classLoader);
+    ServiceLoader<FlinkTask> loader = ServiceLoader.load(FlinkTask.class, classLoader);
 
     LOG.fine("Discovering SdkRunnableTask");
 
     Map<TaskIdentifier, RunnableTask> tasks = new HashMap<>();
     SdkConfig sdkConfig = SdkConfig.load(env);
 
-    for (SdkRunnableTask<?, ?> sdkTask : loader) {
+    for (FlinkTask sdkTask : loader) {
       String name = sdkTask.getName();
       TaskIdentifier taskId =
           TaskIdentifier.builder()
@@ -105,7 +110,7 @@ public class SdkRunnableTaskRegistrar extends RunnableTaskRegistrar {
               .build();
       LOG.fine(String.format("Discovered [%s]", name));
 
-      RunnableTask task = new RunnableTaskImpl<>(sdkTask);
+      RunnableTask task = new RunnableTaskImpl(sdkTask);
       RunnableTask previous = tasks.put(taskId, task);
 
       if (previous != null) {

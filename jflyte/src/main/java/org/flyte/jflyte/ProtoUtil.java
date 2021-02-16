@@ -22,6 +22,8 @@ import static java.util.stream.Collectors.toList;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.protobuf.Struct;
+import com.google.protobuf.util.JsonFormat;
 import flyteidl.admin.Common;
 import flyteidl.admin.ScheduleOuterClass;
 import flyteidl.core.Errors;
@@ -73,7 +75,7 @@ import org.flyte.api.v1.WorkflowTemplate;
 /** Utility to serialize between flytekit-api and flyteidl proto. */
 @SuppressWarnings("PreferJavaTimeOverload")
 class ProtoUtil {
-  static final String TASK_TYPE = "java-task";
+  private static final JsonFormat.Parser JSON_PARSER = JsonFormat.parser();
   static final String RUNTIME_FLAVOR = "java";
   static final String RUNTIME_VERSION = "0.0.1";
 
@@ -185,11 +187,22 @@ class ProtoUtil {
         requireNonNull(
             taskTemplate.container(), "Only container based task templates are supported");
 
+    Struct.Builder customBuilder = Struct.newBuilder();
+    String json = taskTemplate.custom();
+    if (json != null) {
+      try {
+        JSON_PARSER.merge(json, customBuilder);
+      } catch (Exception e) {
+        throw new IllegalArgumentException(e);
+      }
+    }
+
     return Tasks.TaskTemplate.newBuilder()
         .setContainer(serialize(container))
         .setMetadata(metadata)
         .setInterface(serialize(taskTemplate.interface_()))
-        .setType(TASK_TYPE)
+        .setType(taskTemplate.type())
+        .setCustom(customBuilder)
         .build();
   }
 

@@ -92,5 +92,15 @@ public class ChainedExecutionListenerTest {
     public RetryStrategy getRetries() {
       return RetryStrategy.builder().retries(0).build();
     }
+
+    @Override
+    public String getType() {
+      return "java-task";
+    }
+
+    @Override
+    public String getCustom() {
+      return null;
+    }
   }
 }
