@@ -16,6 +16,7 @@
  */
 package org.flyte.api.v1;
 
+import com.google.protobuf.Struct;
 import java.util.Map;
 
 /** Building block for tasks that execute Java code. */
@@ -28,4 +29,12 @@ public interface RunnableTask {
   Map<String, Literal> run(Map<String, Literal> inputs);
 
   RetryStrategy getRetries();
+
+  default String getType() {
+    return "java-task";
+  }
+
+  default Struct getCustom() {
+    return Struct.getDefaultInstance();
+  }
 }

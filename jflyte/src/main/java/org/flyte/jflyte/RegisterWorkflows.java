@@ -16,7 +16,6 @@
  */
 package org.flyte.jflyte;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteSource;
@@ -28,6 +27,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,6 +44,7 @@ import org.flyte.api.v1.KeyValuePair;
 import org.flyte.api.v1.LaunchPlan;
 import org.flyte.api.v1.LaunchPlanIdentifier;
 import org.flyte.api.v1.LaunchPlanRegistrar;
+import org.flyte.api.v1.Literal;
 import org.flyte.api.v1.RetryStrategy;
 import org.flyte.api.v1.RunnableTask;
 import org.flyte.api.v1.RunnableTaskRegistrar;
@@ -146,8 +147,8 @@ public class RegisterWorkflows implements Callable<Integer> {
         .container(container)
         .interface_(task.getInterface())
         .retries(task.getRetries())
-        .type("java-task")
-        .custom(Struct.getDefaultInstance())
+        .type(task.getType())
+        .custom(task.getCustom())
         .build();
   }
 
@@ -228,36 +229,83 @@ public class RegisterWorkflows implements Callable<Integer> {
             .putFlinkProperties("taskmanager.numberOfTaskSlots", "2")
             .putFlinkProperties("taskmanager.memory.flink.size", "3g")
             .build();
-    try {
-      String json = JsonFormat.printer().print(job);
-      Struct.Builder custom = Struct.newBuilder();
-      JsonFormat.parser().merge(json, custom);
 
-      Container container =
-          Container.builder()
-              .command(ImmutableList.of())
-              .args(ImmutableList.of())
-              .image(image)
-              .env(envList)
-              .build();
+    RunnableTask flinkTask =
+        new RunnableTask() {
 
-      TaskTemplate flinkTaskTemplate =
-          TaskTemplate.builder()
-              .interface_(
-                  TypedInterface.builder()
-                      .inputs(Collections.emptyMap())
-                      .outputs(Collections.emptyMap())
-                      .build())
-              .container(container)
-              .type("flink")
-              .custom(custom.build())
-              .retries(RetryStrategy.builder().retries(5).build())
-              .build();
+          @Override
+          public String getName() {
+            return "flink-task-runnable";
+          }
 
-      adminClient.createTask(flinkTaskId, flinkTaskTemplate);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+          @Override
+          public TypedInterface getInterface() {
+            return TypedInterface.builder()
+                .inputs(Collections.emptyMap())
+                .outputs(Collections.emptyMap())
+                .build();
+          }
+
+          @Override
+          public Map<String, Literal> run(Map<String, Literal> inputs) {
+            return Collections.emptyMap();
+          }
+
+          @Override
+          public RetryStrategy getRetries() {
+            return RetryStrategy.builder().retries(0).build();
+          }
+
+          @Override
+          public String getType() {
+            return "flink";
+          }
+
+          @Override
+          public Struct getCustom() {
+            try {
+              String json = JsonFormat.printer().print(job);
+              Struct.Builder custom = Struct.newBuilder();
+              JsonFormat.parser().merge(json, custom);
+              return custom.build();
+            } catch (Exception e) {
+              throw new RuntimeException(e);
+            }
+          }
+        };
+    TaskTemplate taskTemplate = createTaskTemplate(flinkTask, indexFile.location(), image, envList);
+
+    adminClient.createTask(flinkTaskId, taskTemplate);
+    // try {
+    //   String json = JsonFormat.printer().print(job);
+    //   Struct.Builder custom = Struct.newBuilder();
+    //   JsonFormat.parser().merge(json, custom);
+
+    //   Container container =
+    //       Container.builder()
+    //           .command(ImmutableList.of())
+    //           .args(ImmutableList.of())
+    //           .image(image)
+    //           .env(envList)
+    //           .build();
+
+    //   TaskTemplate flinkTaskTemplate =
+    //       TaskTemplate.builder()
+    //           .interface_(
+    //               TypedInterface.builder()
+    //                   .inputs(Collections.emptyMap())
+    //                   .outputs(Collections.emptyMap())
+    //                   .build())
+    //           .container(container)
+    //           .type("flink")
+    //           .custom(custom.build())
+    //           .retries(RetryStrategy.builder().retries(5).build())
+    //           .build();
+
+    //   adminClient.createTask(flinkTaskId, flinkTaskTemplate);
+    // } catch (Exception e) {
+    //   throw new RuntimeException(e);
+    // }
     //////
 
     for (Map.Entry<WorkflowIdentifier, WorkflowTemplate> entry : workflows.entrySet()) {
@@ -295,7 +343,7 @@ public class RegisterWorkflows implements Callable<Integer> {
             .map(Artifact::location)
             .collect(Collectors.joining("\n"));
 
-    ByteSource contentBytes = ByteSource.wrap(content.getBytes(Charsets.UTF_8));
+    ByteSource contentBytes = ByteSource.wrap(content.getBytes(StandardCharsets.UTF_8));
 
     Artifact indexArtifact = stager.getArtifact("classpath", contentBytes);
 
