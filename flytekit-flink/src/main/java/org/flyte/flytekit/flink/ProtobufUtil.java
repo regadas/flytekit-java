@@ -20,7 +20,10 @@ import static java.util.function.Function.identity;
 
 import com.google.protobuf.Descriptors.EnumValueDescriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor;
+import com.google.protobuf.ListValue;
 import com.google.protobuf.Message;
+import com.google.protobuf.Struct;
+import com.google.protobuf.Value;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -149,6 +152,52 @@ public final class ProtobufUtil {
       return message;
     } catch (Exception e) {
       throw new IllegalArgumentException(e.getMessage());
+    }
+  }
+
+  public static Struct fromLiteralMapToStruct(Map<String, Literal> literalMap) {
+    Struct.Builder builder = Struct.newBuilder();
+    literalMap
+        .entrySet()
+        .forEach(entry -> builder.putFields(entry.getKey(), fromLiteral(entry.getValue())));
+    return builder.build();
+  }
+
+  static Value fromLiteral(Literal literal) {
+    switch (literal.kind()) {
+      case SCALAR:
+        return fromPrimitiveToValue(literal.scalar().primitive());
+      case COLLECTION:
+        List<Value> collect =
+            literal.collection().stream()
+                .map(ProtobufUtil::fromLiteral)
+                .collect(Collectors.toList());
+        return Value.newBuilder()
+            .setListValue(ListValue.newBuilder().addAllValues(collect).build())
+            .build();
+      case MAP:
+        return Value.newBuilder().setStructValue(fromLiteralMapToStruct(literal.map())).build();
+      default:
+        throw new IllegalArgumentException();
+    }
+  }
+
+  static Value fromPrimitiveToValue(Primitive primitive) {
+    switch (primitive.type()) {
+      case INTEGER:
+        return Value.newBuilder().setNumberValue(primitive.integer()).build();
+      case FLOAT:
+        return Value.newBuilder().setNumberValue(primitive.float_()).build();
+      case STRING:
+        return Value.newBuilder().setStringValue(primitive.string()).build();
+      case BOOLEAN:
+        return Value.newBuilder().setBoolValue(primitive.boolean_()).build();
+        // case DATETIME:
+        //   return datetime();
+        // case DURATION:
+        //   return duration();
+      default:
+        throw new IllegalArgumentException();
     }
   }
 

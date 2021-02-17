@@ -35,7 +35,7 @@ message FlinkJob {
   repeated string args = 3;
   // map<string, string> flinkProperties = 4;
 
-  // JobManager jobManager = 5;
+  JobManager jobManager = 5;
   // TaskManager taskManager = 6;
   string serviceAccount = 7;
   string image = 8;

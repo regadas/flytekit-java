@@ -16,15 +16,13 @@
  */
 package org.flyte.flytekit;
 
+import com.google.auto.service.AutoService;
+import com.google.protobuf.Struct;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.google.auto.service.AutoService;
-import com.google.protobuf.Struct;
-
 import org.flyte.api.v1.Literal;
 import org.flyte.api.v1.RetryStrategy;
 import org.flyte.api.v1.RunnableTask;

@@ -18,7 +18,14 @@ package org.flyte.flytekit.flink;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Struct;
+import com.google.protobuf.util.JsonFormat;
 import flyteidl.inner.flink.Flink.FlinkJob;
+import flyteidl.inner.flink.Flink.JobManager;
+import flyteidl.inner.flink.Flink.Resource;
+import flyteidl.inner.flink.Flink.Resource.PersistentVolume;
+import flyteidl.inner.flink.Flink.Resource.PersistentVolume.Type;
 import java.util.Map;
 import org.flyte.api.v1.Literal;
 import org.flyte.api.v1.LiteralType;
@@ -56,5 +63,35 @@ class ProtobufUtilTest {
     assertEquals(
         LiteralType.Kind.SIMPLE_TYPE, variableMap.get("mainClass").literalType().getKind());
     assertEquals(LiteralType.Kind.COLLECTION_TYPE, variableMap.get("args").literalType().getKind());
+  }
+
+  @Test
+  void foobar() {
+    FlinkJob job =
+        FlinkJob.newBuilder()
+            .setMainClass("org.flyte.Job")
+            .setJarFile("gs://bucket/jar")
+            .setServiceAccount("service-account")
+            .addArgs("--output=gs://bucket/output")
+            .setImage("flink-image")
+            .setJobManager(
+                JobManager.newBuilder()
+                    .setResource(
+                        Resource.newBuilder()
+                            .setCpu("1")
+                            .setPersistentVolume(
+                                PersistentVolume.newBuilder().setSize("100").setType(Type.PD_SSD))))
+            .build();
+
+    try {
+      Map<String, Literal> literal = ProtobufUtil.literal(job);
+      Struct foobar = ProtobufUtil.fromLiteralMapToStruct(literal);
+      System.out.println(JsonFormat.printer().print(foobar));
+    } catch (InvalidProtocolBufferException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
+    assertEquals(true, true);
   }
 }
