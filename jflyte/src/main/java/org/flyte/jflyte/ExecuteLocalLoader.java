@@ -26,6 +26,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SortedSetMultimap;
+import com.google.protobuf.Struct;
+
 import java.io.File;
 import java.util.List;
 import java.util.Map;
@@ -153,7 +155,7 @@ public class ExecuteLocalLoader {
     }
 
     @Override
-    public String getCustom() {
+    public Struct getCustom() {
       return runnableTask.getCustom();
     }
   }

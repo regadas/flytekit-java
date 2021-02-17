@@ -21,6 +21,9 @@ import static java.util.Collections.emptyMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+
+import com.google.protobuf.Struct;
+
 import org.flyte.api.v1.Literal;
 import org.flyte.api.v1.PartialTaskIdentifier;
 import org.flyte.api.v1.RetryStrategy;
@@ -127,7 +130,7 @@ class TestingRunnableTask<InputT, OutputT> implements RunnableTask {
   }
 
   @Override
-  public String getCustom() {
+  public Struct getCustom() {
     return null;
   }
 }

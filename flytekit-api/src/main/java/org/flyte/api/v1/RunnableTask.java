@@ -17,6 +17,7 @@
 package org.flyte.api.v1;
 
 import java.util.Map;
+import com.google.protobuf.Struct;
 
 /** Building block for tasks that execute Java code. */
 public interface RunnableTask {
@@ -31,5 +32,5 @@ public interface RunnableTask {
 
   String getType();
 
-  String getCustom();
+  Struct getCustom();
 }

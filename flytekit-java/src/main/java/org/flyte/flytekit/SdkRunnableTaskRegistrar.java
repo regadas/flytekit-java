@@ -17,6 +17,8 @@
 package org.flyte.flytekit;
 
 import com.google.auto.service.AutoService;
+import com.google.protobuf.Struct;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -79,7 +81,7 @@ public class SdkRunnableTaskRegistrar extends RunnableTaskRegistrar {
     }
 
     @Override
-    public String getCustom() {
+    public Struct getCustom() {
       return null;
     }
   }
